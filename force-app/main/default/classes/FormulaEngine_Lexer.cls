@@ -2,29 +2,29 @@ public with sharing class FormulaEngine_Lexer {
     
     // TOKEN TYPES
     private static final String STRING_TOKEN = 'string';
-    private static final String SYMBOL_TOKEN = 'symbol';
     private static final String NUMBER_TOKEN = 'number';
-    private static final String COMPARISON_TOKEN = 'comparison';
-    private static final String OPERATOR_TOKEN = 'operator';
-    private static final String LOGICAL_TOKEN = 'logical';
+    private static final String AND_TOKEN = 'and';
+    private static final String OR_TOKEN = 'or';
+    private static final String ADD_TOKEN = 'add';
+    private static final String SUBTRACT_TOKEN = 'subtract';
+    private static final String MULTIPLY_TOKEN = 'multiply';
+    private static final String DIVIDE_TOKEN = 'divide';
+    private static final String CURLY_OPEN_TOKEN = 'open-curly';
+    private static final String CURLY_CLOSED_TOKEN = 'closed-curly';
+    private static final String PAREN_OPEN_TOKEN = 'open-paren';
+    private static final String PAREN_CLOSED_TOKEN = 'closed-paren';
+    private static final String QUOTE_DOUBLE_TOKEN = 'double-quote';
+    private static final String COMMA_TOKEN = 'comma';
+    private static final String EQUALS_TOKEN = 'equals';
+    private static final String NOT_EQUALS_TOKEN = 'not-equals';
+    private static final String NOT_TOKEN = 'not';
+    private static final String LESS_THAN_TOKEN = 'less-than';
+    private static final String LE_TOKEN = 'le';
+    private static final String GREATER_THAN_TOKEN = 'greater-than';
+    private static final String GE_TOKEN = 'ge';
+    private static final String SPECIAL_CHAR_TOKEN = 'special';
     private static final String INVALID_TOKEN = 'invalid';
 
-    // and
-    // or
-    // add
-    // subtract
-    // multiply
-    // divide
-    // open_paren
-    // close_paren
-    // open_curly
-    // close_curly
-    // single_quote
-    // double_quote
-    // LE
-    // GE
-    // equals
-    // not equals
     /** Functions Engine (contains list of supported functions)
      *  Evaluation Engine
      * 
@@ -33,125 +33,169 @@ public with sharing class FormulaEngine_Lexer {
      *  - Full Numbers
      *  - Change for-loop to Integer iterator
      *  - Ignore whitespace UNLESS inside quote
+     *  - Define functions
      */
 
     // Treat special characters as their own token
 
     // TOKEN VALUES
-    private static final Set<String> STRINGS = new Set<String>('_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
+    private static final Set<String> STRINGS = new Set<String>('_.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
     private static final Set<String> NUMBERS = new Set<String>('.0123456789'.split(''));
-    private static final Set<String> SYMBOLS = new Set<String>('_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
-    private static final Set<String> OPERATORS = new Set<String>('+-*/'.split(''));
-    private static final Set<String> COMPARISONS = new Set<String>('<>=!'.split(''));
-    private static final Set<String> LOGICALS = new Set<String>('&|'.split(''));
-    private static final Set<String> SPECIALS = new Set<String>('(){}[],;'.split(''));
+    private static final Set<String> SYMBOLS = new Set<String>('_.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '.split(''));
+    private static final Set<String> SPECIAL_HOLDS = new Set<String>('&|<>=!'.split('')); // special characters that require a second character in order to be a valid operator
+    private static final Map<String, String> SPECIAL_HOLDS_MAP = new Map<String, String> {'&' => SPECIAL_CHAR_TOKEN,
+                                                                                          '|' => SPECIAL_CHAR_TOKEN,
+                                                                                          '<' => SPECIAL_CHAR_TOKEN,
+                                                                                          '>' => SPECIAL_CHAR_TOKEN,
+                                                                                          '=' => SPECIAL_CHAR_TOKEN,
+                                                                                          '!' => SPECIAL_CHAR_TOKEN};
+
+    private static final Map<String, String> SPECIAL_CHAR_MAP = new Map<String, String> {'&&' => AND_TOKEN,
+                                                                                         '||' => OR_TOKEN,
+                                                                                         '+' => ADD_TOKEN,
+                                                                                         '-' => SUBTRACT_TOKEN,
+                                                                                         '*' => MULTIPLY_TOKEN,
+                                                                                         '/' => DIVIDE_TOKEN,
+                                                                                         '==' => EQUALS_TOKEN,
+                                                                                         '!=' => NOT_EQUALS_TOKEN,
+                                                                                         '!' => NOT_TOKEN,
+                                                                                         '>' => GREATER_THAN_TOKEN,
+                                                                                         '>=' => GE_TOKEN,
+                                                                                         '<' => LESS_THAN_TOKEN,
+                                                                                         '<=' => LE_TOKEN,
+                                                                                         '(' => PAREN_OPEN_TOKEN,
+                                                                                         ')' => PAREN_CLOSED_TOKEN,
+                                                                                         '{' => CURLY_OPEN_TOKEN,
+                                                                                         '}' => CURLY_CLOSED_TOKEN,
+                                                                                         '"' => QUOTE_DOUBLE_TOKEN,
+                                                                                         ',' => COMMA_TOKEN};
 
     public class Token {
-        static String key;
-        static String value;
+        public String key;
+        public String value;
 
-        Token(String key, String value){
+        public Token(String key, String value){
             this.key = key;
             this.value = value;
         }
     }
 
     public static List<Token> tokenize(String formula){
+        // create list of characters from formula
+        List<String> characters = formula.split('');
         //  TOKENIZED MAP
-        List<Map<String, String>> tokenMap = new Map<String, String>();
+        List<Token> tokenMap = new List<Token>();
         // save previous token for some specific token determinations
-        String previousToken = null;
-        String openString = false;
+        String currentToken;
+        String previousToken;
+        Boolean invalid = false;
+        Boolean openString = false;
+        Boolean openHold = false;
         // remove whitespace and loop through each character in formula string
-        for(String char : formula.split('')){
-            Token token = new Token();
-            // check for arithmetic operator
-            if(OPERATORS.contains(char)){ // ------> +-*/
-                token.key = OPERATOR_TOKEN;
-                token.value = char;
+        Boolean endOfToken = false;
+        for(Integer i = 0; i < characters.size(); i++){
+            String currChar = characters[i];
+            // if we hit whitespace and are not currently in a string literal, ignore
+            if(currChar == ' ' && previousToken != STRING_TOKEN){
+                continue;
+            }
+            // character is part of a binary operator
+            else if(SPECIAL_HOLDS.contains(currChar)){
+                Map<String, Integer> scanResult = scan(characters, i, SPECIAL_CHAR_TOKEN, SPECIAL_HOLDS_MAP);
+                String currentTokenValue = new List<String>(scanResult.keySet())[0];
+                i = scanResult.get(currentTokenValue);
+                previousToken = SPECIAL_CHAR_TOKEN;
+                if(SPECIAL_CHAR_MAP.get(currentTokenValue) != null){
+                    previousToken = SPECIAL_CHAR_MAP.get(currentTokenValue);
+                    // assign token's key-value pairing and add to list
+                    Token token = new Token(SPECIAL_CHAR_MAP.get(currentTokenValue), currentTokenValue);
+                    System.debug('Token: '+token);
+                    tokenMap.add(token);
+                    // end the open special character hold
+                    openHold = false;
+                    // signal for end of current token
+                    endOfToken = true;
+                    continue;
+                }
+                else{
+                    // TO-DO: Error Handler for invalid sequence
+                    break;
+                }
+            }
+            // any special character outside of a special hold
+            else if(SPECIAL_CHAR_MAP.get(currChar) != null){
+                previousToken = SPECIAL_CHAR_MAP.get(currChar);
+                Token token = new Token(SPECIAL_CHAR_MAP.get(currChar), currChar);
+                System.debug('Token: '+token);
                 tokenMap.add(token);
-                previousToken = OPERATOR_TOKEN;
+                if(previousToken == QUOTE_DOUBLE_TOKEN){
+                    openString = !openString;
+                }
                 continue;
             }
-            // check for comparison operator
-            else if(COMPARISONS.contains(char)){ // ------> <>=!
-                cToken.put(COMPARISON_TOKEN, char);
-                tokenMap.add(cToken);
-                previousToken = COMPARISON_TOKEN;
-                continue;
-            }
-            // check for logical operator
-            else if(LOGICALS.contains(char)){ // ------> &|
-                cToken.put(LOGICAL_TOKEN, char);
-                tokenMap.add(cToken);
-                previousToken = LOGICAL_TOKEN;
-                continue;
-            }
-            // check for special characters
-            else if(SPECIALS.contains(char)){ // ------> (){}[],;:
-                tokecTokennMap.put(char, '');
-                tokenMap.add(cToken);
-                previousToken = 'special';
-                continue;
-            }
-            // check for beginning/end of string
-            else if(char == '"' || char == '\''){
-                cToken.put(STRING_TOKEN, char);
-                tokenMap.add(cToken);
+            // any alpha-numeric character found INSIDE a string literal
+            else if(previousToken == QUOTE_DOUBLE_TOKEN && openString){
+                Map<String, Integer> scanResult = scan(characters, i, SYMBOLS);
+                Token token = new Token(STRING_TOKEN, new List<String>(scanResult.keySet())[0]);
+                System.debug('Token: '+token);
+                tokenMap.add(token);
+                i = scanResult.get(token.value);
                 previousToken = STRING_TOKEN;
-                // If beginning a new string, set to true. Otherwise set to false
-                openString = !openString;
                 continue;
             }
-
-            /**
-             * TO-DO:
-             *  - do we need to check for special symbols while inside a string?
-             */
-
-            // currently inside a string
-            if(openString){
-                // check for a continuation of the string
-                if(SYMBOLS.contains(char)){
-                    cToken.put(SYMBOL_TOKEN, char);
-                    tokenMap.add(cToken);
-                    previousToken = SYMBOL_TOKEN;
-                    continue;
-                }
-                // non-alphanumeric numbers (excluding _) found in open string
-                else{
-                    cToken.put(INVALID_TOKEN, char);
-                    tokenMap.add(cToken);
-                    previousToken = INVALID_TOKEN;
-                    break;
-                }
+            // any string found OUTSIDE a string literal
+            else if(STRINGS.contains(currChar)){
+                Map<String, Integer> scanResult = scan(characters, i, STRINGS);
+                Token token = new Token(STRING_TOKEN, new List<String>(scanResult.keySet())[0]);
+                System.debug('Token: '+token);
+                tokenMap.add(token);
+                i = scanResult.get(token.value);
+                previousToken = STRING_TOKEN;
+                continue;
             }
-            // not currently inside a string
+            // any number found OUTSIDE a string literal
+            else if(NUMBERS.contains(currChar)){
+                Map<String, Integer> scanResult = scan(characters, i, NUMBERS);
+                Token token = new Token(NUMBER_TOKEN, new List<String>(scanResult.keySet())[0]);
+                System.debug('Token: '+token);
+                tokenMap.add(token);
+                i = scanResult.get(token.value);
+                previousToken = NUMBER_TOKEN;
+                continue;
+            }
             else{
-                if(STRINGS.contains(char)){
-                    cToken.put(STRING_TOKEN, char);
-                    tokenMap.add(cToken);
-                    previousToken = STRING_TOKEN;
-                    continue;
-                }
-                else if(NUMBERS.contains(char)){
-                    // if a number is coming right after a letter, treat it as a part of the string
-                    // otherwise, treat is as a normal number.
-                    String TOKEN = previousToken == STRING_TOKEN ? STRING_TOKEN : NUMBER_TOKEN;
-                    cToken.put(TOKEN, char);
-                    tokenMap.add(cToken);
-                    previousToken = TOKEN;
-                    continue;
-                }
-                // non-alphanumeric numbers (excluding _ and .) found in open string
-                else{
-                    cToken.put(INVALID_TOKEN, char);
-                    tokenMap.add(cToken);
-                    previousToken = INVALID_TOKEN;
-                    break;
-                }
+                // TO-DO: Error handler for invalid sequence
             }
         }
         return tokenMap;
+    }
+
+    public static Map<String, Integer> scan(List<String> characters, Integer i, String endingToken, Map<String, String> tokenMap){
+        String currToken = endingToken;
+        String currValue = characters[i];
+        // token value we'll return
+        String returnValue = '';
+        while(currToken == endingToken) {
+            // if the current value was the same token type, add it to the overall string
+            returnValue += currValue;
+            // interate to the next character
+            i += 1;
+            currValue = characters[i];
+            // find the token for the next 
+            currToken = tokenMap.get(currValue);
+        }
+        return new Map<String, Integer>{returnValue => (i-1)};
+    }
+
+    public static Map<String, Integer> scan(List<String> characters, Integer i, Set<String> tokenSet){
+        String currValue = characters[i];
+        // token value we'll return
+        String returnValue = '';
+        while(tokenSet.contains(currValue)){
+            returnValue += currValue;
+            i += 1;
+            currValue = characters[i];
+        }
+        return new Map<String, Integer>{returnValue => (i-1)};
     }
 }
