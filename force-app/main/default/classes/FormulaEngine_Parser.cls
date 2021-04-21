@@ -3,13 +3,13 @@ public with sharing class FormulaEngine_Parser {
     /*
     List<FormulaEngine_Lexer.Token> tokens = new List<FormulaEngine_Lexer.Token>();
     tokens.add(new FormulaEngine_Lexer.Token('string','and'));
-tokens.add(new FormulaEngine_Lexer.Token('open_paren','('));
+tokens.add(new FormulaEngine_Lexer.Token('open-paren','('));
     tokens.add(new FormulaEngine_Lexer.Token('number','5'));
     tokens.add(new FormulaEngine_Lexer.Token('add','+'));
     tokens.add(new FormulaEngine_Lexer.Token('number','1'));
     tokens.add(new FormulaEngine_Lexer.Token('equals','='));
 tokens.add(new FormulaEngine_Lexer.Token('number','6'));
-tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
+tokens.add(new FormulaEngine_Lexer.Token('closed-paren',')'));
 
     FormulaEngine_Parser.SyntaxBranch syntaxTree = FormulaEngine_Parser.parseTokens(tokens);
 
@@ -36,31 +36,6 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     private static List<String> binaryOperators = new List<String>{'and','or','add','subtract','multiply','divide','equals','not-equals','less-than','le','greater-than','ge'};
     private static List<String> unaryFunctions = new List<String>{'isblank','not','len'};
     private static List<String> unaryOperators = new List<String>{'not'};
-    
-    /*
-    private static final String STRING_TOKEN = 'string';
-    private static final String NUMBER_TOKEN = 'number';
-    private static final String AND_TOKEN = 'and';
-    private static final String OR_TOKEN = 'or';
-    private static final String ADD_TOKEN = 'add';
-    private static final String SUBTRACT_TOKEN = 'subtract';
-    private static final String MULTIPLY_TOKEN = 'multiply';
-    private static final String DIVIDE_TOKEN = 'divide';
-    private static final String CURLY_OPEN_TOKEN = 'open-curly';
-    private static final String CURLY_CLOSED_TOKEN = 'closed-curly';
-    private static final String PAREN_OPEN_TOKEN = 'open-paren';
-    private static final String PAREN_CLOSED_TOKEN = 'closed-paren';
-    private static final String QUOTE_DOUBLE_TOKEN = 'double-quote';
-    private static final String COMMA_TOKEN = 'comma';
-    private static final String EQUALS_TOKEN = 'equals';
-    private static final String NOT_EQUALS_TOKEN = 'not-equals';
-    private static final String NOT_TOKEN = 'not';
-    private static final String LESS_THAN_TOKEN = 'less-than';
-    private static final String LE_TOKEN = 'le';
-    private static final String GREATER_THAN_TOKEN = 'greater-than';
-    private static final String GE_TOKEN = 'ge';
-    private static final String INVALID_TOKEN = 'invalid';
-    */
 
     // Token info
     private static FormulaEngine_Lexer.Token currentToken;
@@ -76,10 +51,6 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
         public String value;
         public List<SyntaxBranch> subBranches;
     }
-
-    // Example strings
-    // AND(4=4,5=5)
-    // 5=2+3
 
     public static SyntaxBranch parseTokens(List<FormulaEngine_Lexer.Token> lexedTokens) {
         tokens = lexedTokens;
@@ -111,7 +82,7 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
 
     private static SyntaxBranch routeToken() {
         // Opening parenthese
-        if (currentToken.key == 'open_paren') {
+        if (currentToken.key == 'open-paren') {
             return parentheseBranch();
         } 
         // Functions
@@ -162,16 +133,18 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch parentheseBranch() {
+        system.debug('Parenthese Branch');
+        system.debug(currentToken);
         SyntaxBranch parentheseBranch = new SyntaxBranch();
         parentheseBranch.type = 'parenthese';
         parentheseBranch.value = currentToken.key;
         List<SyntaxBranch> subBranches = new List<SyntaxBranch>();
         SyntaxBranch argBranch;
-        // Step to token after open_paren token
+        // Step to token after open-paren token
         nextToken();
-        // Watch for end of string OR close_paren
+        // Watch for end of string OR closed-paren
         while (currentTokenIndex < tokens.size() &&
-            currentToken.key != 'close_paren'
+            currentToken.key != 'closed-paren'
         ) {
             // If not comma token
             if (currentToken.key != 'comma') {
@@ -192,7 +165,7 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
             system.debug('Error line 182');
             // First argument missing
         }
-        // Ensure ending token is close_paren (i.e. currentTokenIndex >= tokens.size())
+        // Ensure ending token is closed-paren (i.e. currentTokenIndex >= tokens.size())
         if (currentTokenIndex >= tokens.size()) {
             // Throw Error
             system.debug('Error line 188');
@@ -209,6 +182,8 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch binaryOperatorBranch(){
+        system.debug('Binary Operator Branch');
+        system.debug(currentToken);
         SyntaxBranch binaryOperatorBranch = new SyntaxBranch();
         binaryOperatorBranch.type = 'binaryOperator';
         binaryOperatorBranch.value = currentToken.key;
@@ -234,6 +209,7 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
             // Watch for end of string OR comma
             while (currentTokenIndex < tokens.size() &&
                 currentToken.key != 'comma' &&
+                currentToken.key != 'closed-paren' &&
                 !binaryOperators.contains(currentToken.key.toLowerCase())
             ) {
                 // Configure right hand side branch
@@ -257,7 +233,9 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
 
             // If not end of string, step back to comma or operator token
             if (currentTokenIndex < tokens.size()) {
+                // system.debug(currentToken);
                 prevToken();
+                // system.debug(currentToken);
             }
         } else {
             // Throw Error
@@ -268,6 +246,8 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch unaryOperatorBranch(){
+        system.debug('Unary Operator Branch');
+        system.debug(currentToken);
         SyntaxBranch unaryOperatorBranch = new SyntaxBranch();
         unaryOperatorBranch.type = 'unaryOperator';
         unaryOperatorBranch.value = currentToken.key;
@@ -312,26 +292,28 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch binaryFunctionBranch() {
+        system.debug('Binary Function Branch');
+        system.debug(currentToken);
         SyntaxBranch binaryFunctionBranch = new SyntaxBranch();
         binaryFunctionBranch.type = 'binaryFunction';
         binaryFunctionBranch.value = currentToken.value;
 
         // Ensure next token is an opening parenthese
         if ((currentTokenIndex + 1) < tokens.size() &&
-            tokens[currentTokenIndex + 1].key == 'open_paren'
+            tokens[currentTokenIndex + 1].key == 'open-paren'
         ) {
-            // Step to open_paren token
+            // Step to open-paren token
             nextToken();
             List<SyntaxBranch> subBranches = new List<SyntaxBranch>();
             SyntaxBranch firstArgBranch;
-            // Step to token after open_paren token
+            // Step to token after open-paren token
             nextToken();
             // Watch for end of string OR comma
             while (currentTokenIndex < tokens.size() &&
                 currentToken.key != 'comma'
             ) {
-                // If not close_paren token
-                if (currentToken.key != 'close_paren') {
+                // If not closed-paren token
+                if (currentToken.key != 'closed-paren') {
                     // Configure argument branch
                     firstArgBranch = routeToken();
                     nextToken();
@@ -352,10 +334,12 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
             SyntaxBranch secondArgBranch;
             // Step to token after comma token
             nextToken();
-            // Watch for close_paren token
+            // system.debug('Second Binary Function Argument');
+            // Watch for closed-paren token
             while (currentTokenIndex < tokens.size() &&
-                currentToken.key != 'close_paren'
+                currentToken.key != 'closed-paren'
             ) {
+                // system.debug(currentToken);
                 // If not comma token
                 if (currentToken.key != 'comma') {
                     // Configure argument branch
@@ -375,7 +359,9 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
             system.debug('Error line 360');
                 // Second argument missing
             }
-            // Ensure ending token is close_paren (i.e. currentTokenIndex >= tokens.size())
+            // system.debug('End of Binary Function');
+            // system.debug(currentTokenIndex);
+            // Ensure ending token is closed-paren (i.e. currentTokenIndex >= tokens.size())
             if (currentTokenIndex >= tokens.size()) {
                 // Throw Error
                 system.debug('Error line 366');
@@ -396,23 +382,25 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch unaryFunctionBranch() {
+        system.debug('Unary Function Branch');
+        system.debug(currentToken);
         SyntaxBranch unaryFunctionBranch = new SyntaxBranch();
         unaryFunctionBranch.type = 'unaryFunction';
         unaryFunctionBranch.value = currentToken.value;
 
         // Ensure next token is an opening parenthese
         if ((currentTokenIndex + 1) < tokens.size() &&
-            tokens[currentTokenIndex + 1].key == 'open_paren'
+            tokens[currentTokenIndex + 1].key == 'open-paren'
         ) {
-            // Step to open_paren token
+            // Step to open-paren token
             nextToken();
             List<SyntaxBranch> subBranches = new List<SyntaxBranch>();
             SyntaxBranch firstArgBranch;
-            // Step to token after open_paren token
+            // Step to token after open-paren token
             nextToken();
-            // Watch for end of string OR close_paren
+            // Watch for end of string OR closed-paren
             while (currentTokenIndex < tokens.size() &&
-                currentToken.key != 'close_paren'
+                currentToken.key != 'closed-paren'
             ) {
                 // If not comma token
                 if (currentToken.key != 'comma') {
@@ -433,7 +421,7 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
                 system.debug('Error line 418');
                 // First argument missing
             }
-            // Ensure ending token is close_paren (i.e. currentTokenIndex >= tokens.size())
+            // Ensure ending token is closed-paren (i.e. currentTokenIndex >= tokens.size())
             if (currentTokenIndex >= tokens.size()) {
                 // Throw Error
                 system.debug('Error line 424');
@@ -454,8 +442,10 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch fieldReferenceBranch() {
+        system.debug('Field Reference Branch');
+        system.debug(currentToken);
         SyntaxBranch fieldReferenceBranch;
-        // Step to token after open_curly token
+        // Step to token after open-curly token
         nextToken();
         // Check for string token
         if (currentTokenIndex < tokens.size() &&
@@ -482,9 +472,9 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
 
         // Step to token after string token
         nextToken();
-        // Ensure ending token is close_curly
+        // Ensure ending token is closed-curly
         if (currentTokenIndex >= tokens.size() ||
-            currentToken.key != 'close_curly'
+            currentToken.key != 'closed-curly'
         ) {
             // Throw Error
             system.debug('Error line 475');
@@ -495,6 +485,8 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch literalStringBranch() {
+        system.debug('Literal String Branch');
+        system.debug(currentToken);
         SyntaxBranch literalStringBranch;
         // Step to token after double_quote token
         nextToken();
@@ -536,6 +528,8 @@ tokens.add(new FormulaEngine_Lexer.Token('close_paren',')'));
     }
 
     private static SyntaxBranch numberBranch(){
+        system.debug('Number Branch');
+        system.debug(currentToken);
         SyntaxBranch numberBranch = new SyntaxBranch();
         numberBranch.type = 'number';
         numberBranch.value = currentToken.value;
