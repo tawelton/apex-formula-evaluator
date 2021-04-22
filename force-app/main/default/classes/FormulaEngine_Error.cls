@@ -10,7 +10,7 @@ public class FormulaEngine_Error {
     public void thowError(String displayMessage, Exception e){
         String errorMessage = '';
         if(displayMessage != null){
-            errorMessage += '***** ' + displayMessage + ' ***** ';
+            errorMessage += displayMessage + ' ';
         }
         if(e != null){
             errorMessage += '(Runtime Error: ' + e.getMessage() + ')';

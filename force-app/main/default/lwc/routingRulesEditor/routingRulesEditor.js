@@ -1,7 +1,9 @@
 import { LightningElement, api } from 'lwc';
 import { loadScript } from 'lightning/platformResourceLoader';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 import codeflask from '@salesforce/resourceUrl/codeflask'
+import validateFormula from '@salesforce/apex/FormulaEngine.validate';
 
 const functions = [
     // logical
@@ -98,6 +100,27 @@ export default class RoutingRulesEditor extends LightningElement {
     handleInsertFieldClick(event) {
         console.log(event.target.value)
         console.log(this.cursorPosition)
+    }
+
+    handleValidateClick() {
+        let params = { formula: this.editor.getCode() }
+
+        validateFormula(params)
+            .then((result) => {
+                const evt = new ShowToastEvent({
+                    title: 'Validation Successful',
+                    variant: 'success',
+                });
+                this.dispatchEvent(evt);
+            })
+            .catch((error) => {
+                const evt = new ShowToastEvent({
+                    title: 'Validation Error',
+                    message: error.body.message,
+                    variant: 'error',
+                });
+                this.dispatchEvent(evt);
+            })
     }
 
     handleSaveClick() {

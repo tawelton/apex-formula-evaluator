@@ -1,7 +1,5 @@
 import { LightningElement } from 'lwc';
 
-import savePricing from '@salesforce/apex/RSPricingDealApproval.savePricing';
-
 export default class RoutingRulesManager extends LightningElement {
 
     currentTab = "rules/Case"
