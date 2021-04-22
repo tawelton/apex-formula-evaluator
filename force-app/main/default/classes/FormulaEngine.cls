@@ -12,33 +12,7 @@ public with sharing class FormulaEngine {
         // evaluate the syntax
     }
 
-    public Object runEngine(Id recordId){
-        sObject record = queryRecord(recordId);
+    public Object runEngine(SObject record){
         return syntaxTree.evaluateSubBranches(record);
-    }
-
-    public SObject queryRecord(Id recordId) {
-        String objectName = recordId.getSObjectType().getDescribe().getName();
-        String fieldsString = '';
-        // Get a map of field name and field token
-        Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe().get(objectName.toLowerCase()).getDescribe().Fields.getMap();
-         
-        if (fieldMap != null){
-            // Loop through all field tokens
-            for (Schema.SObjectField fieldToken : fieldMap.values()){
-                // Describe each field
-                Schema.DescribeFieldResult field = fieldToken.getDescribe();
-                // Compile field
-                fieldsString += field.getName() + ',';
-            }
-        }
-         
-        // Remove trailing ','
-        if (fieldsString.endsWith(',')){
-            fieldsString = fieldsString.substring(0,fieldsString.lastIndexOf(','));
-        }
-         
-        String queryString = 'SELECT ' + fieldsString + ' FROM ' + objectName + ' WHERE Id=\''+recordId+'\'';
-        return Database.query(queryString);
     }
 }
