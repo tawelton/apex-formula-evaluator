@@ -24,8 +24,8 @@ public with sharing class FormulaEngine_Functions {
         return (Object)fieldValue.length();
     }
 
-    public Object f_left(String fieldValue, Integer i){
-        return (Object)fieldValue.left(i);
+    public Object f_left(String fieldValue, String i){
+        return (Object)fieldValue.left(Integer.valueOf(i));
     }
 
     public Object f_not(Boolean expr){
@@ -36,8 +36,8 @@ public with sharing class FormulaEngine_Functions {
         return (Object)(LHS || RHS);
     }
 
-    public Object f_right(String fieldValue, Integer i){
-        return (Object)fieldValue.right(i);
+    public Object f_right(String fieldValue, String i){
+        return (Object)fieldValue.right(Integer.valueOf(i));
     }
 
     public Object f_text(Decimal numValue){
@@ -55,16 +55,16 @@ public with sharing class FormulaEngine_Functions {
                            (Object)(LHS + RHS);
     }
 
-    public Object f_sub(Decimal LHS, Decimal RHS){
-        return (Object)(LHS - RHS);
+    public Object f_sub(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) - Decimal.valueOf(RHS));
     }
 
-    public Object f_mult(Decimal LHS, Decimal RHS){
-        return (Object)(LHS * RHS);
+    public Object f_mult(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) * Decimal.valueOf(RHS));
     }
 
-    public Object f_div(Decimal LHS, Decimal RHS){
-        return (Object)(LHS / RHS);
+    public Object f_div(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) / Decimal.valueOf(RHS));
     }
 
     public Object f_equals(String LHS, String RHS){
@@ -75,20 +75,21 @@ public with sharing class FormulaEngine_Functions {
         return (Object)(LHS != RHS);
     }
 
-    public Object f_less_than(Decimal LHS, Decimal RHS){
-        return (Object)(LHS < RHS);
+    public Object f_less_than(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) < Decimal.valueOf(RHS));
     }
 
-    public Object f_le(Decimal LHS, Decimal RHS){
-        return (Object)(LHS <= RHS);
+    public Object f_le(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) <= Decimal.valueOf(RHS));
     }
 
-    public Object f_greater_than(Decimal LHS, Decimal RHS){
-        return (Object)(LHS > RHS);
+    public Object f_greater_than(String LHS, String RHS){
+        return (Object)(Decimal.valueOf(LHS) > Decimal.valueOf(RHS));
     }
 
-    public Object f_ge(Decimal LHS, Decimal RHS){
-        return (Object)(LHS >= RHS);
+    public Object f_ge(String LHS, String RHS){
+
+        return (Object)(Decimal.valueOf(LHS) >= Decimal.valueOf(RHS));
     }
 
 }

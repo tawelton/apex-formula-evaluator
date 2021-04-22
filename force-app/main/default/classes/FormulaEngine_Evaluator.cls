@@ -37,22 +37,22 @@ public with sharing class FormulaEngine_Evaluator {
                 return formulaEng.f_contains((String)LHS, (String)RHS);
             }
             else if(branch.value == 'left'){
-                return formulaEng.f_left((String)LHS, (Integer)RHS);
+                return formulaEng.f_left((String)LHS, (String)RHS);
             }
             else if(branch.value == 'right'){
-                return formulaEng.f_right((String)LHS, (Integer)RHS);
+                return formulaEng.f_right((String)LHS, (String)RHS);
             }
             else if(branch.value == 'add'){
                 return formulaEng.f_add((String)LHS, (String)RHS);
             }
             else if(branch.value == 'subtract'){
-                return formulaEng.f_sub((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_sub((String)LHS, (String)RHS);
             }
             else if(branch.value == 'multiply'){
-                return formulaEng.f_mult((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_mult((String)LHS, (String)RHS);
             }
             else if(branch.value == 'divide'){
-                return formulaEng.f_div((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_div((String)LHS, (String)RHS);
             }
             else if(branch.value == 'equals'){
                 return formulaEng.f_equals((String)LHS, (String)RHS);
@@ -61,16 +61,16 @@ public with sharing class FormulaEngine_Evaluator {
                 return formulaEng.f_not_equals((String)LHS, (String)RHS);
             }
             else if(branch.value == 'less-than'){
-                return formulaEng.f_less_than((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_less_than((String)LHS, (String)RHS);
             }
             else if(branch.value == 'le'){
-                return formulaEng.f_le((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_le((String)LHS, (String)RHS);
             }
             else if(branch.value == 'greater-than'){
-                return formulaEng.f_greater_than((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_greater_than((String)LHS, (String)RHS);
             }
             else if(branch.value == 'ge'){
-                return formulaEng.f_ge((Decimal)LHS, (Decimal)RHS);
+                return formulaEng.f_ge((String)LHS, (String)RHS);
             }
             else{
                 // TO-DO: Error Handler
