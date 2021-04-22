@@ -20,7 +20,7 @@
             <div class="slds-grid slds-grid_vertical" style="width:100%">
                 <div class="slds-text-heading_medium slds-p-around_medium slds-theme--default" style="font-weight: 800;box-shadow: var(--sds-c-card-shadow, var(--lwc-cardShadow,4px 0 2px 0 rgba(0, 0, 0, 0.10))); z-index: 1;">
                     <span class="slds-p-left_small slds-p-bottom_xx-small">
-                        Case Routing Rules
+                        {currentObjectName} Routing Rules
                     </span>
                     <template for:each={parentRuleChain} for:item="rule">
                         <span key={rule.Id} class="slds-p-left_small slds-p-bottom_xx-small slds-text-title_caps" style="font-weight: base">
@@ -49,6 +49,19 @@
                                 {rule.Name}
                             </div>
                         </template>
+
+                        <div class="slds-grid slds-m-vertical_medium">
+                            <button type="button" class="slds-button slds-button_brand" onclick={handleCreateRuleClick}>
+                                <lightning-icon 
+                                    class="slds-m-right_x-small"  
+                                    icon-name="utility:add" 
+                                    size="xx-small" 
+                                    variant="inverse">
+                                </lightning-icon>
+                                Create Rule
+                            </button>
+                        </div>
+
                     </div>
 
                     <div if:true={selectedRule} class="slds-col slds-theme--default slds-p-around_medium" style="min-width:400px;width:400px; height: 100%; box-shadow: var(--sds-c-card-shadow, var(--lwc-cardShadow,4px 0 2px 0 rgba(0, 0, 0, 0.10)))">
@@ -61,7 +74,7 @@
                             </template>
                         </span>
                         <div class="slds-m-vertical_medium">
-                            <lightning-input type="text" label="Name" value={selectedRule.Name}></lightning-input>
+                            <lightning-input type="text" label="Name" value={selectedRule.Name} onchange={handleRuleValueChange}></lightning-input>
                         </div>
                         <div class="slds-m-vertical_medium">
                             <lightning-textarea label="Formula" disabled value={selectedRule.Formula__c}></lightning-textarea>
@@ -81,7 +94,7 @@
                                 value={selectedRule.Action_Type__c}
                                 placeholder="Select Action Type"
                                 options={actionTypeOptions}
-                                onchange={updateActionType}
+                                onchange={handleRuleValueChange}
                                 >
                             </lightning-combobox>
                             <button if:true={evaluatesChildren} type="button" class="slds-button slds-button_neutral slds-button_stretch slds-m-vertical_x-small" onclick={handleShowChildrenClick}>
@@ -93,6 +106,21 @@
                                 </lightning-icon>
                                 Show Child Records
                             </button>
+                        </div>
+                        <div if:false={evaluatesChildren} class="slds-m-vertical_medium">
+                            <lightning-input type="text" label="Action Field Name" value={selectedRule.Action_Field_Developer_Name__c} onchange={handleRuleValueChange}></lightning-input>
+                        </div>
+                        <div if:false={evaluatesChildren} class="slds-m-vertical_medium">
+                            <lightning-input type="text" label="Action Field Value" value={selectedRule.Action_Field_Value__c} onchange={handleRuleValueChange}></lightning-input>
+                        </div>
+
+                        <div class="slds-m-vertical_medium">
+                            <div class="slds-m-vertical_xx-small">
+                                <button class="slds-button slds-button_brand slds-button_stretch" onclick={handleSaveClick}>Save</button>
+                            </div>
+                            <div if:true={selectedRule.Id} class="slds-m-vertical_xx-small">
+                                <button class="slds-button slds-button_destructive slds-button_stretch" onclick={handleDeleteClick}>Delete</button>
+                            </div>
                         </div>
 
                         

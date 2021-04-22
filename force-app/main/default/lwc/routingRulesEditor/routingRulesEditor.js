@@ -41,7 +41,7 @@ const functions = [
     {
         name: "CONTAINS",
         group: "Text Manipulation",
-        value: "BEGINS(#,#)"
+        value: "CONTAINS(#,#)"
     },
     {
         name: "LEFT",
