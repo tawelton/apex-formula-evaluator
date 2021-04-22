@@ -2,6 +2,10 @@ public with sharing class FormulaEngine_Evaluator {
     // Function and Operator node types
     private Set<String> unaryTypes = new Set<String>{'unaryFunction', 'unaryOperator'};
     private Set<String> binaryTypes = new Set<String>{'binaryFunction', 'binaryOperator'};
+    FormulaEngine_Error errorHandler = new FormulaEngine_Error();
+
+    // SObject queried record
+    public SObject record;
 
     public Object evaluate(FormulaEngine_Parser.SyntaxBranch branch){
         if(branch.value == 'and' || branch.value == 'or'){
@@ -10,7 +14,8 @@ public with sharing class FormulaEngine_Evaluator {
             return (Object)(branch.value == 'and' ? (LHS && RHS) : (LHS || RHS));
         }
         else{
-            // TO-DO: Error Handler
+            // Handle error for invalid operator
+            errorHandler.thowError(('Invalid operation request: '+branch.value));
             return null;
         }
     }
@@ -73,7 +78,8 @@ public with sharing class FormulaEngine_Evaluator {
                 return formulaEng.f_ge((String)LHS, (String)RHS);
             }
             else{
-                // TO-DO: Error Handler
+                // Handle error for invalid operator
+                errorHandler.thowError(('Invalid operation request: '+branch.value));
                 return null;
             }
 
@@ -97,9 +103,13 @@ public with sharing class FormulaEngine_Evaluator {
                 return formulaEng.f_value((String)LHS);
             }
             else{
-                // TO-DO: Error Handler
+                // Handle error for invalid operator
+                errorHandler.thowError(('Invalid operation request: '+branch.value));
                 return null;
             }
+        }
+        else if (branch.type == 'fieldReference') {
+            return getFieldReference(branch);
         }
         else{
             return evaluateEndNode(branch);
@@ -108,5 +118,9 @@ public with sharing class FormulaEngine_Evaluator {
 
     public Object evaluateEndNode(FormulaEngine_Parser.SyntaxBranch branch){
         return (Object)branch.value;
+    }
+
+    public Object getFieldReference(FormulaEngine_Parser.SyntaxBranch branch){
+        return (Object)record.get(branch.value);
     }
 }

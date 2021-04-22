@@ -85,6 +85,7 @@ public with sharing class FormulaEngine_Lexer {
         List<String> characters = formula.split('');
         //  TOKENIZED MAP
         List<Token> tokenMap = new List<Token>();
+        FormulaEngine_Error errorHandler = new FormulaEngine_Error();
         // save previous token for some specific token determinations
         String currentToken;
         String previousToken;
@@ -109,7 +110,6 @@ public with sharing class FormulaEngine_Lexer {
                     previousToken = SPECIAL_CHAR_MAP.get(currentTokenValue);
                     // assign token's key-value pairing and add to list
                     Token token = new Token(SPECIAL_CHAR_MAP.get(currentTokenValue), currentTokenValue);
-                    System.debug('Token: '+token);
                     tokenMap.add(token);
                     // end the open special character hold
                     openHold = false;
@@ -118,7 +118,8 @@ public with sharing class FormulaEngine_Lexer {
                     continue;
                 }
                 else{
-                    // TO-DO: Error Handler for invalid sequence
+                    // Handle error for invalid sequence
+                    errorHandler.thowError(('Invalid use of special characters: '+currentTokenValue));
                     break;
                 }
             }
@@ -126,7 +127,6 @@ public with sharing class FormulaEngine_Lexer {
             else if(SPECIAL_CHAR_MAP.get(currChar) != null){
                 previousToken = SPECIAL_CHAR_MAP.get(currChar);
                 Token token = new Token(SPECIAL_CHAR_MAP.get(currChar), currChar);
-                System.debug('Token: '+token);
                 tokenMap.add(token);
                 if(previousToken == QUOTE_DOUBLE_TOKEN){
                     openString = !openString;
@@ -137,7 +137,6 @@ public with sharing class FormulaEngine_Lexer {
             else if(previousToken == QUOTE_DOUBLE_TOKEN && openString){
                 Map<String, Integer> scanResult = scan(characters, i, SYMBOLS);
                 Token token = new Token(STRING_TOKEN, new List<String>(scanResult.keySet())[0]);
-                System.debug('Token: '+token);
                 tokenMap.add(token);
                 i = scanResult.get(token.value);
                 previousToken = STRING_TOKEN;
@@ -147,7 +146,6 @@ public with sharing class FormulaEngine_Lexer {
             else if(STRINGS.contains(currChar)){
                 Map<String, Integer> scanResult = scan(characters, i, STRINGS);
                 Token token = new Token(STRING_TOKEN, new List<String>(scanResult.keySet())[0]);
-                System.debug('Token: '+token);
                 tokenMap.add(token);
                 i = scanResult.get(token.value);
                 previousToken = STRING_TOKEN;
@@ -157,14 +155,14 @@ public with sharing class FormulaEngine_Lexer {
             else if(NUMBERS.contains(currChar)){
                 Map<String, Integer> scanResult = scan(characters, i, NUMBERS);
                 Token token = new Token(NUMBER_TOKEN, new List<String>(scanResult.keySet())[0]);
-                System.debug('Token: '+token);
                 tokenMap.add(token);
                 i = scanResult.get(token.value);
                 previousToken = NUMBER_TOKEN;
                 continue;
             }
             else{
-                // TO-DO: Error handler for invalid sequence
+                // Handle error for invalid sequence
+                errorHandler.thowError(('Invalid character: '+currChar));
             }
         }
         return tokenMap;
