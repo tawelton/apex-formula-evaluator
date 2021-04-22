@@ -1,0 +1,101 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium"
+        aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" style="overflow-y: scroll">
+        <div class="slds-modal__container" style="height: auto;">
+            <header class="slds-modal__header" style="background-color: transparent; border: 0; display: flex; justify-content: flex-start; margin-bottom: -1.4rem; padding-left: 0;">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+                        <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-card" style="padding: 0 1rem;">
+                    <div class="slds-card__body">
+                        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate slds-text-color slds-text-title_bold" style="font-weight: bold;">
+                            Rule Editor
+                        </h2>
+                    </div>
+                </div>
+            </header>
+            <div class="slds-modal__content" id="modal-content-id-1" style="background: transparent;">
+                <div class="slds-grid slds-grid_horizontal slds-gutters">
+
+
+                    <div class="slds-col slds-size_3-of-4">
+                        <div class="slds-card slds-p-around_x-small" style="overflow: hidden;">
+                            <!-- editor -->
+                            <div class="slds-box editor" style="min-height: 500px; height: 100%; position:relative; padding:0; overflow:hidden;">
+                            </div>  
+                            <!-- editor buttons -->
+                            <div class="slds-grid slds-grid_horizontal slds-grid_align-spread slds-m-top_x-small">
+                                <div class="slds-grid slds-grid_horizontal">
+                                    <div class="slds-m-horizontal_xx-small">
+                                        <lightning-button
+                                            variant="neutral"
+                                            label="Test Run"
+                                            icon-name="utility:play"
+                                            icon-position="left"
+                                            onclick={handleTestRunClick}>
+                                        </lightning-button>
+                                    </div>
+                                    <div class="slds-m-horizontal_xx-small">
+                                        <button type="button" class="slds-button slds-button_success slds-text-color_inverse" onclick={handleValidateClick}>
+                                            Validate
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-grid_horizontal">
+                                    <div class="slds-m-horizontal_xx-small">
+                                        <button class="slds-button slds-button_brand" disabled={disableSave} onclick={handleSaveClick}>Save</button>
+                                    </div>
+                                    <div class="slds-m-horizontal_small">
+                                        <button class="slds-button" onclick={handleCloseClick}>Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-4">
+                        <div class="slds-card" style="overflow: hidden; height: 100%;">
+                            <div class="slds-card__body" style="padding: 0 1rem;">
+                                <div class="slds-grid slds-grid_vertical">
+
+                                    <button type="button" class="slds-button slds-button_neutral" onclick={handleInsertFieldClick}>
+                                        <lightning-icon 
+                                            class="slds-m-right_x-small" 
+                                            icon-name="utility:add" 
+                                            size="xx-small" 
+                                            variant="brand">
+                                        </lightning-icon>
+                                        Insert Field
+                                    </button>
+
+                                    <div class="slds-m-top_small slds-m-bottom_xx-small" style="color:#999;">
+                                        Functions:
+                                    </div>
+                                    <div class="slds-box slds-m-vertical_xx-small" style="max-height: 455px; height: 100%; position: relative; padding: 0; overflow-y: scroll;">
+                                        <template for:each={groupedFunctions} for:item="group">
+                                            <div key={group.name} class="slds-p-around_xx-small slds-text-title_caps slds-border_bottom" style="background-color: #fafafa;">
+                                                {group.name}
+                                            </div>
+                                            <template for:each={group.functions} for:item="availableFunction">
+                                                <div key={availableFunction.name} class="slds-border_bottom">
+                                                    <button class="slds-button slds-button_stretch" value={availableFunction.name} onclick={handleInsertFunctionClick}>{availableFunction.name}</button>
+                                                </div>
+                                            </template>
+                                        </template>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+ 
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" onclick={handleCloseClick}></div>
+</template>

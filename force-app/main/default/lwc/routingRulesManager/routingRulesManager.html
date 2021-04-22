@@ -1,0 +1,97 @@
+<template>
+    <div class="slds-grid slds-grid_horizontal" style="margin: -0.75rem; height:calc(100% + 1.5rem); background: rgb(248 248 248);">
+        <div class="slds-col slds-theme--default" style="min-width:250px;width:250px; height: 100%; box-shadow: var(--sds-c-card-shadow, var(--lwc-cardShadow,4px 0 2px 0 rgba(0, 0, 0, 0.10)))">
+            <lightning-vertical-navigation onselect={handleSelect} selected-item="rules/Case">
+
+                <h1 class="slds-text-heading_medium slds-p-around_medium" style="font-weight: 800;">Routing Rules</h1>
+
+                <lightning-vertical-navigation-section label="Objects">
+                    <lightning-vertical-navigation-item label="Cases" name="rules/Case"></lightning-vertical-navigation-item>
+                    <lightning-vertical-navigation-item label="Leads" name="rules/Lead"></lightning-vertical-navigation-item>
+                </lightning-vertical-navigation-section>
+
+                <!-- <lightning-vertical-navigation-section label="Administration">
+                    <lightning-vertical-navigation-item label="Permissions" name="Permissions"></lightning-vertical-navigation-item>
+                </lightning-vertical-navigation-section> -->
+
+            </lightning-vertical-navigation>
+        </div>  
+        <div class="slds-grid slds-grid_horizontal" style="width:100%;">
+            <div class="slds-grid slds-grid_vertical" style="width:100%">
+                <div class="slds-text-heading_medium slds-p-around_medium slds-theme--default" style="font-weight: 800;box-shadow: var(--sds-c-card-shadow, var(--lwc-cardShadow,4px 0 2px 0 rgba(0, 0, 0, 0.10))); z-index: 1;">
+                    <span class="slds-p-left_small slds-p-bottom_xx-small">
+                        Case Routing Rules
+                    </span>
+                    <template for:each={parentRuleChain} for:item="rule">
+                        <span key={rule.Id} class="slds-p-left_small slds-p-bottom_xx-small slds-text-title_caps" style="font-weight: base">
+                            > {rule.Name}
+                        </span>
+                    </template> 
+                </div>
+                
+                <div class="slds-grid slds-grid_horizontal" style="height: 100%;">
+                    <div class="slds-grid slds-grid_vertical slds-p-around_medium" style="width:100%">
+
+                        <div class="slds-grid">
+                            <button if:true={currentTier} type="button" class="slds-button" onclick={handleBackClick}>
+                                <lightning-icon 
+                                    class="slds-m-right_x-small"  
+                                    icon-name="utility:back" 
+                                    size="xx-small" 
+                                    variant="brand">
+                                </lightning-icon>
+                                Back
+                            </button>
+                        </div>
+
+                        <template for:each={filteredRules} for:item="rule">
+                            <div key={rule.Id} class="slds-box slds-theme_default" style="width: 100%; margin-top:.3rem; cursor: pointer;" data-rule={rule.Id} onclick={handleSelectRule}>
+                                {rule.Name}
+                            </div>
+                        </template>
+                    </div>
+
+                    <div if:true={selectedRule} class="slds-col slds-theme--default slds-p-around_medium" style="min-width:400px;width:400px; height: 100%; box-shadow: var(--sds-c-card-shadow, var(--lwc-cardShadow,4px 0 2px 0 rgba(0, 0, 0, 0.10)))">
+                        <div class="slds-m-vertical_small">
+                            <lightning-input type="text" label="Name" value={selectedRule.Name}></lightning-input>
+                        </div>
+                        <div class="slds-m-vertical_small">
+                            <lightning-textarea label="Formula" disabled value={selectedRule.Formula__c}></lightning-textarea>
+                            <button type="button" class="slds-button slds-button_neutral slds-button_stretch" onclick={toggleEditor}>
+                                <lightning-icon 
+                                    class="slds-m-right_x-small"  
+                                    icon-name="utility:edit" 
+                                    size="xx-small" 
+                                    variant="brand">
+                                </lightning-icon>
+                                Edit Formula
+                            </button>
+                        </div> 
+                        <div class="slds-m-vertical_small">
+                            <lightning-combobox
+                                label="Action Type"
+                                value={selectedRule.Action_Type__c}
+                                placeholder="Select Action Type"
+                                options={actionTypeOptions}
+                                onchange={updateActionType}
+                                >
+                            </lightning-combobox>
+                            <div if:true={evaluatesChildren}>
+                                <button type="button" class="slds-button slds-button_neutral slds-button_stretch" onclick={handleShowChildrenClick}>
+                                    Show Child Records
+                                </button>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div>
+            <c-routing-rules-editor if:true={showEditor} rule={selectedRule} onclose={toggleEditor} onsave={saveFormula}></c-routing-rules-editor>
+        </div>
+    </div>
+</template>
