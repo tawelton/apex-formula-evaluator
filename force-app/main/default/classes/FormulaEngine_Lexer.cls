@@ -1,29 +1,29 @@
 public with sharing class FormulaEngine_Lexer {
     
     // TOKEN TYPES
-    private static final String STRING_TOKEN = 'string';
-    private static final String NUMBER_TOKEN = 'number';
-    private static final String AND_TOKEN = 'and';
-    private static final String OR_TOKEN = 'or';
-    private static final String ADD_TOKEN = 'add';
-    private static final String SUBTRACT_TOKEN = 'subtract';
-    private static final String MULTIPLY_TOKEN = 'multiply';
-    private static final String DIVIDE_TOKEN = 'divide';
-    private static final String CURLY_OPEN_TOKEN = 'open-curly';
-    private static final String CURLY_CLOSED_TOKEN = 'closed-curly';
-    private static final String PAREN_OPEN_TOKEN = 'open-paren';
-    private static final String PAREN_CLOSED_TOKEN = 'closed-paren';
-    private static final String QUOTE_DOUBLE_TOKEN = 'double-quote';
-    private static final String COMMA_TOKEN = 'comma';
-    private static final String EQUALS_TOKEN = 'equals';
-    private static final String NOT_EQUALS_TOKEN = 'not-equals';
-    private static final String NOT_TOKEN = 'not';
-    private static final String LESS_THAN_TOKEN = 'less-than';
-    private static final String LE_TOKEN = 'le';
-    private static final String GREATER_THAN_TOKEN = 'greater-than';
-    private static final String GE_TOKEN = 'ge';
-    private static final String SPECIAL_CHAR_TOKEN = 'special';
-    private static final String INVALID_TOKEN = 'invalid';
+    private final String STRING_TOKEN = 'string';
+    private final String NUMBER_TOKEN = 'number';
+    private final String AND_TOKEN = 'and';
+    private final String OR_TOKEN = 'or';
+    private final String ADD_TOKEN = 'add';
+    private final String SUBTRACT_TOKEN = 'subtract';
+    private final String MULTIPLY_TOKEN = 'multiply';
+    private final String DIVIDE_TOKEN = 'divide';
+    private final String CURLY_OPEN_TOKEN = 'open-curly';
+    private final String CURLY_CLOSED_TOKEN = 'closed-curly';
+    private final String PAREN_OPEN_TOKEN = 'open-paren';
+    private final String PAREN_CLOSED_TOKEN = 'closed-paren';
+    private final String QUOTE_DOUBLE_TOKEN = 'double-quote';
+    private final String COMMA_TOKEN = 'comma';
+    private final String EQUALS_TOKEN = 'equals';
+    private final String NOT_EQUALS_TOKEN = 'not-equals';
+    private final String NOT_TOKEN = 'not';
+    private final String LESS_THAN_TOKEN = 'less-than';
+    private final String LE_TOKEN = 'le';
+    private final String GREATER_THAN_TOKEN = 'greater-than';
+    private final String GE_TOKEN = 'ge';
+    private final String SPECIAL_CHAR_TOKEN = 'special';
+    private final String INVALID_TOKEN = 'invalid';
 
     /** Functions Engine (contains list of supported functions)
      *  Evaluation Engine
@@ -39,18 +39,18 @@ public with sharing class FormulaEngine_Lexer {
     // Treat special characters as their own token
 
     // TOKEN VALUES
-    private static final Set<String> STRINGS = new Set<String>('_.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
-    private static final Set<String> NUMBERS = new Set<String>('.0123456789'.split(''));
-    private static final Set<String> SYMBOLS = new Set<String>('_.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '.split(''));
-    private static final Set<String> SPECIAL_HOLDS = new Set<String>('&|<>=!'.split('')); // special characters that require a second character in order to be a valid operator
-    private static final Map<String, String> SPECIAL_HOLDS_MAP = new Map<String, String> {'&' => SPECIAL_CHAR_TOKEN,
+    private final Set<String> STRINGS = new Set<String>('_.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
+    private final Set<String> NUMBERS = new Set<String>('.0123456789'.split(''));
+    private final Set<String> SYMBOLS = new Set<String>('_.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '.split(''));
+    private final Set<String> SPECIAL_HOLDS = new Set<String>('&|<>=!'.split('')); // special characters that require a second character in order to be a valid operator
+    private final Map<String, String> SPECIAL_HOLDS_MAP = new Map<String, String> {'&' => SPECIAL_CHAR_TOKEN,
                                                                                           '|' => SPECIAL_CHAR_TOKEN,
                                                                                           '<' => SPECIAL_CHAR_TOKEN,
                                                                                           '>' => SPECIAL_CHAR_TOKEN,
                                                                                           '=' => SPECIAL_CHAR_TOKEN,
                                                                                           '!' => SPECIAL_CHAR_TOKEN};
 
-    private static final Map<String, String> SPECIAL_CHAR_MAP = new Map<String, String> {'&&' => AND_TOKEN,
+    private final Map<String, String> SPECIAL_CHAR_MAP = new Map<String, String> {'&&' => AND_TOKEN,
                                                                                          '||' => OR_TOKEN,
                                                                                          '+' => ADD_TOKEN,
                                                                                          '-' => SUBTRACT_TOKEN,
@@ -80,7 +80,7 @@ public with sharing class FormulaEngine_Lexer {
         }
     }
 
-    public static List<Token> tokenize(String formula){
+    public List<Token> tokenize(String formula){
         // create list of characters from formula
         List<String> characters = formula.split('');
         //  TOKENIZED MAP
@@ -170,7 +170,7 @@ public with sharing class FormulaEngine_Lexer {
         return tokenMap;
     }
 
-    public static Map<String, Integer> scan(List<String> characters, Integer i, String endingToken, Map<String, String> tokenMap){
+    public Map<String, Integer> scan(List<String> characters, Integer i, String endingToken, Map<String, String> tokenMap){
         String currToken = endingToken;
         String currValue = characters[i];
         // token value we'll return
@@ -180,21 +180,21 @@ public with sharing class FormulaEngine_Lexer {
             returnValue += currValue;
             // interate to the next character
             i += 1;
-            currValue = characters[i];
+            currValue = i < characters.size() ? characters[i] : null;
             // find the token for the next 
-            currToken = tokenMap.get(currValue);
+            currToken = i < characters.size() ? tokenMap.get(currValue) : null;
         }
         return new Map<String, Integer>{returnValue => (i-1)};
     }
 
-    public static Map<String, Integer> scan(List<String> characters, Integer i, Set<String> tokenSet){
+    public Map<String, Integer> scan(List<String> characters, Integer i, Set<String> tokenSet){
         String currValue = characters[i];
         // token value we'll return
         String returnValue = '';
         while(tokenSet.contains(currValue)){
             returnValue += currValue;
             i += 1;
-            currValue = characters[i];
+            currValue = i < characters.size() ? characters[i] : null;
         }
         return new Map<String, Integer>{returnValue => (i-1)};
     }
