@@ -9,7 +9,6 @@ public with sharing class FormulaEngine {
         FormulaEngine_Parser parser = new FormulaEngine_Parser();
         FormulaEngine_Parser.SyntaxBranch syntaxTree = parser.parseTokens(tokens);
 
-        /*
         List<String> dynamicQueryList = parser.dynamicQueryList;
         System.debug('dynamicQueryList: '+ dynamicQueryList);
         String childFields = '';
@@ -20,7 +19,6 @@ public with sharing class FormulaEngine {
         }
         System.debug('childFields (JACOB): '+childFields);
         queryRecord(record.Id, childFields);
-        */
 
         // evaluate the syntax
         return syntaxTree.evaluateSubBranches(record);
@@ -39,30 +37,30 @@ public with sharing class FormulaEngine {
         return syntaxTree;
     }
 
-    // public static SObject queryRecord(Id recordId, String childFields) {
-    //     String objectName = recordId.getSObjectType().getDescribe().getName();
-    //     String fieldsString = '';
-    //     // Get a map of field name and field token
-    //     Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe().get(objectName.toLowerCase()).getDescribe().Fields.getMap();
+    public static SObject queryRecord(Id recordId, String childFields) {
+        String objectName = recordId.getSObjectType().getDescribe().getName();
+        String fieldsString = '';
+        // Get a map of field name and field token
+        Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe().get(objectName.toLowerCase()).getDescribe().Fields.getMap();
          
-    //     if (fieldMap != null){
-    //         // Loop through all field tokens
-    //         for (Schema.SObjectField fieldToken : fieldMap.values()){
-    //             // Describe each field
-    //             Schema.DescribeFieldResult field = fieldToken.getDescribe();
-    //             // Compile field
-    //             fieldsString += field.getName() + ',';
-    //         }
-    //     }
+        if (fieldMap != null){
+            // Loop through all field tokens
+            for (Schema.SObjectField fieldToken : fieldMap.values()){
+                // Describe each field
+                Schema.DescribeFieldResult field = fieldToken.getDescribe();
+                // Compile field
+                fieldsString += field.getName() + ',';
+            }
+        }
          
-    //     // Remove trailing ','
-    //     if (fieldsString.endsWith(',')){
-    //         fieldsString = fieldsString.substring(0,fieldsString.lastIndexOf(','));
-    //     }
+        // Remove trailing ','
+        if (fieldsString.endsWith(',')){
+            fieldsString = fieldsString.substring(0,fieldsString.lastIndexOf(','));
+        }
          
-    //     String queryString = 'SELECT ' + fieldsString + ' FROM ' + objectName + ' WHERE Id=\''+recordId+'\'';
-    //     System.debug('childFields: '+childFields);
-    //     System.debug('queryString: '+queryString);
-    //     return Database.query(queryString);
-    // }
+        String queryString = 'SELECT ' + fieldsString + ' FROM ' + objectName + ' WHERE Id=\''+recordId+'\'';
+        System.debug('childFields: '+childFields);
+        System.debug('queryString: '+queryString);
+        return Database.query(queryString);
+    }
 }

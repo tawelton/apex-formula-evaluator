@@ -44,31 +44,31 @@ public with sharing class FormulaEngine_Lexer {
     private final Set<String> SYMBOLS = new Set<String>('_.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '.split(''));
     private final Set<String> SPECIAL_HOLDS = new Set<String>('&|<>=!'.split('')); // special characters that require a second character in order to be a valid operator
     private final Map<String, String> SPECIAL_HOLDS_MAP = new Map<String, String> {'&' => SPECIAL_CHAR_TOKEN,
-                                                                                          '|' => SPECIAL_CHAR_TOKEN,
-                                                                                          '<' => SPECIAL_CHAR_TOKEN,
-                                                                                          '>' => SPECIAL_CHAR_TOKEN,
-                                                                                          '=' => SPECIAL_CHAR_TOKEN,
-                                                                                          '!' => SPECIAL_CHAR_TOKEN};
+                                                                                    '|' => SPECIAL_CHAR_TOKEN,
+                                                                                    '<' => SPECIAL_CHAR_TOKEN,
+                                                                                    '>' => SPECIAL_CHAR_TOKEN,
+                                                                                    '=' => SPECIAL_CHAR_TOKEN,
+                                                                                    '!' => SPECIAL_CHAR_TOKEN};
 
     private final Map<String, String> SPECIAL_CHAR_MAP = new Map<String, String> {'&&' => AND_TOKEN,
-                                                                                         '||' => OR_TOKEN,
-                                                                                         '+' => ADD_TOKEN,
-                                                                                         '-' => SUBTRACT_TOKEN,
-                                                                                         '*' => MULTIPLY_TOKEN,
-                                                                                         '/' => DIVIDE_TOKEN,
-                                                                                         '==' => EQUALS_TOKEN,
-                                                                                         '!=' => NOT_EQUALS_TOKEN,
-                                                                                         '!' => NOT_TOKEN,
-                                                                                         '>' => GREATER_THAN_TOKEN,
-                                                                                         '>=' => GE_TOKEN,
-                                                                                         '<' => LESS_THAN_TOKEN,
-                                                                                         '<=' => LE_TOKEN,
-                                                                                         '(' => PAREN_OPEN_TOKEN,
-                                                                                         ')' => PAREN_CLOSED_TOKEN,
-                                                                                         '{' => CURLY_OPEN_TOKEN,
-                                                                                         '}' => CURLY_CLOSED_TOKEN,
-                                                                                         '"' => QUOTE_DOUBLE_TOKEN,
-                                                                                         ',' => COMMA_TOKEN};
+                                                                                '||' => OR_TOKEN,
+                                                                                '+' => ADD_TOKEN,
+                                                                                '-' => SUBTRACT_TOKEN,
+                                                                                '*' => MULTIPLY_TOKEN,
+                                                                                '/' => DIVIDE_TOKEN,
+                                                                                '==' => EQUALS_TOKEN,
+                                                                                '!=' => NOT_EQUALS_TOKEN,
+                                                                                '!' => NOT_TOKEN,
+                                                                                '>' => GREATER_THAN_TOKEN,
+                                                                                '>=' => GE_TOKEN,
+                                                                                '<' => LESS_THAN_TOKEN,
+                                                                                '<=' => LE_TOKEN,
+                                                                                '(' => PAREN_OPEN_TOKEN,
+                                                                                ')' => PAREN_CLOSED_TOKEN,
+                                                                                '{' => CURLY_OPEN_TOKEN,
+                                                                                '}' => CURLY_CLOSED_TOKEN,
+                                                                                '"' => QUOTE_DOUBLE_TOKEN,
+                                                                                ',' => COMMA_TOKEN};
 
     public class Token {
         public String key;
